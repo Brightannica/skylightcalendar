@@ -1,63 +1,163 @@
-import Image from "next/image";
+"use client";
+import React, { useState } from 'react';
+import { Calendar, momentLocalizer, View } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Utensils, CheckSquare, CloudSun } from 'lucide-react';
+
+// Setup the Calendar Engine
+const localizer = momentLocalizer(moment);
+
+// Define types for our data
+interface CalendarEvent {
+  title: string;
+  start: Date;
+  end: Date;
+  color?: string;
+}
+
+// --- FAKE DATA ---
+const FAKE_EVENTS: CalendarEvent[] = [
+  {
+    title: 'Soccer Practice ⚽',
+    start: new Date(moment().set({ hour: 17, minute: 0 }).toDate()),
+    end: new Date(moment().set({ hour: 18, minute: 30 }).toDate()),
+    color: '#10b981', // Green
+  },
+  {
+    title: 'Date Night ❤️',
+    start: new Date(moment().add(1, 'days').set({ hour: 19, minute: 0 }).toDate()),
+    end: new Date(moment().add(1, 'days').set({ hour: 21, minute: 0 }).toDate()),
+    color: '#ec4899', // Pink
+  },
+  {
+    title: 'Trash Day 🗑️',
+    start: new Date(moment().add(2, 'days').set({ hour: 7, minute: 0 }).toDate()),
+    end: new Date(moment().add(2, 'days').set({ hour: 7, minute: 30 }).toDate()),
+    color: '#3b82f6', // Blue
+  }
+];
 
 export default function Home() {
+  const [events, setEvents] = useState<CalendarEvent[]>(FAKE_EVENTS);
+  const [view, setView] = useState<View>('month');
+  const [date, setDate] = useState(new Date());
+
+  // Style the events based on their color property
+  const eventStyleGetter = (event: CalendarEvent) => {
+    return {
+      style: {
+        backgroundColor: event.color || '#3b82f6',
+        borderRadius: '6px',
+        color: 'white',
+        border: '0px',
+        display: 'block',
+        fontSize: '0.9rem',
+        padding: '2px 5px',
+      },
+    };
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex h-screen w-full bg-slate-50 text-slate-800 overflow-hidden font-sans">
+      
+      {/* --- SIDEBAR --- */}
+      <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shadow-xl z-20">
+        <div className="p-8 flex flex-col h-full gap-8">
+          
+          {/* Header */}
+          <div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Family</h1>
+            <p className="text-slate-400 font-medium text-lg">Command Center</p>
+          </div>
+
+          {/* Weather Widget */}
+          <div className="bg-blue-50 p-6 rounded-3xl flex items-center justify-between border border-blue-100">
+            <div>
+              <span className="text-5xl font-bold text-blue-900">72°</span>
+              <p className="text-blue-600 font-medium mt-1">Sunny</p>
+            </div>
+            <CloudSun size={48} className="text-blue-500" />
+          </div>
+
+          {/* Info Section */}
+          <div className="flex-1 space-y-8">
+            {/* Dinner */}
+            <div>
+              <h3 className="flex items-center gap-2 font-bold text-slate-400 mb-4 uppercase text-xs tracking-wider">
+                <Utensils size={16} /> Dinner
+              </h3>
+              <div className="p-5 bg-orange-50 rounded-2xl border border-orange-100">
+                <p className="font-bold text-xl text-orange-900">Taco Tuesday 🌮</p>
+                <p className="text-sm text-orange-700 mt-1">Ground beef, salsa, guac</p>
+              </div>
+            </div>
+
+            {/* Chores */}
+            <div>
+              <h3 className="flex items-center gap-2 font-bold text-slate-400 mb-4 uppercase text-xs tracking-wider">
+                <CheckSquare size={16} /> Chores
+              </h3>
+              <ul className="space-y-3">
+                {['Walk the dog', 'Empty dishwasher'].map((chore, i) => (
+                  <li key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center"></div>
+                    <span className="font-medium text-slate-600 text-lg">{chore}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </aside>
+
+      {/* --- CALENDAR AREA --- */}
+      <main className="flex-1 p-6 h-full">
+        <div className="bg-white rounded-[2rem] shadow-sm h-full p-6 border border-slate-200 overflow-hidden flex flex-col">
+          
+          {/* Custom Toolbar */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-6">
+               <span className="text-3xl font-bold text-slate-800">
+                 {moment(date).format('MMMM YYYY')}
+               </span>
+               <div className="flex gap-2">
+                 <button onClick={() => setDate(moment(date).subtract(1, view === 'month' ? 'months' : 'weeks').toDate())} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">←</button>
+                 <button onClick={() => setDate(new Date())} className="px-4 py-1 hover:bg-slate-100 rounded-full text-slate-500 font-medium">Today</button>
+                 <button onClick={() => setDate(moment(date).add(1, view === 'month' ? 'months' : 'weeks').toDate())} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">→</button>
+               </div>
+            </div>
+            
+            <div className="flex gap-1 bg-slate-100 p-1 rounded-xl">
+              {['month', 'week', 'day'].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v as View)}
+                  className={`px-6 py-2 rounded-lg text-sm font-bold capitalize transition-all ${
+                    view === v ? 'bg-white shadow text-slate-900' : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* The Calendar */}
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            views={['month', 'week', 'day']}
+            view={view}
+            date={date}
+            onNavigate={(newDate) => setDate(newDate)}
+            onView={(newView) => setView(newView)}
+            eventPropGetter={eventStyleGetter}
+            toolbar={false}
+          />
         </div>
       </main>
     </div>
