@@ -1,0 +1,32 @@
+
+> nextjs@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 1343ms
+○ Compiling / ...
+ GET / 200 in 7.5s (compile: 7.1s, render: 438ms)
+ GET / 200 in 88ms (compile: 9ms, render: 79ms)
+ POST /api/auth/signup 200 in 540ms (compile: 509ms, render: 31ms)
+ GET /api/events?userId=a7375c57-2245-4144-a9db-273162426862 200 in 205ms (compile: 196ms, render: 9ms)
+ POST /api/events 200 in 12ms (compile: 5ms, render: 7ms)
+ GET /api/events?userId=a7375c57-2245-4144-a9db-273162426862 200 in 13ms (compile: 4ms, render: 9ms)
+ GET / 200 in 86ms (compile: 4ms, render: 82ms)
+ POST /api/auth/signup 200 in 11ms (compile: 4ms, render: 6ms)
+ GET /api/events?userId=b4be070f-4ea0-43bf-9398-5457736c7bbc 200 in 10ms (compile: 5ms, render: 5ms)
+ POST /api/events 200 in 9ms (compile: 4ms, render: 5ms)
+ GET /api/events?userId=b4be070f-4ea0-43bf-9398-5457736c7bbc 200 in 7ms (compile: 3ms, render: 4ms)
+ GET / 200 in 74ms (compile: 6ms, render: 69ms)
+ POST /api/auth/signup 200 in 13ms (compile: 2ms, render: 10ms)
+ GET /api/events?userId=1fe8212d-35f2-4a3f-96fc-7042999b84b2 200 in 9ms (compile: 3ms, render: 6ms)
+ POST /api/events 200 in 8ms (compile: 3ms, render: 5ms)
+ GET /api/events?userId=1fe8212d-35f2-4a3f-96fc-7042999b84b2 200 in 6ms (compile: 3ms, render: 4ms)

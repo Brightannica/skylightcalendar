@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar as CalendarIcon, CheckSquare, Utensils, ShoppingCart, Image as ImageIcon, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutDashboard, Calendar as CalendarIcon, CheckSquare, Utensils, ShoppingCart, Image as ImageIcon, Settings as SettingsIcon } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -8,6 +8,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
   const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
     { id: 'chores', label: 'Chores', icon: CheckSquare },
     { id: 'meals', label: 'Meals', icon: Utensils },

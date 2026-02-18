@@ -16,3 +16,47 @@ body {
   background-color: #f8fafc; /* slate-50 */
   color: #1e293b; /* slate-800 */
 }
+
+/* React Big Calendar Overrides */
+.rbc-calendar {
+  font-family: inherit !important;
+}
+
+.rbc-time-view {
+  border: none !important;
+}
+
+.rbc-time-header {
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.rbc-time-content {
+  border-top: none !important;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid #f8fafc !important;
+}
+
+.rbc-current-time-indicator {
+  background-color: #ef4444 !important;
+  height: 2px !important;
+}
+
+.rbc-event {
+  background-color: #3b82f6 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+  padding: 4px 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+
+.rbc-today {
+  background-color: #eff6ff !important;
+}

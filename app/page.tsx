@@ -6,27 +6,41 @@ import { Image as ImageIcon, Maximize2, Moon } from 'lucide-react';
 // Components
 import Sidebar from './components/Sidebar';
 import CalendarView from './components/CalendarView';
+import DashboardView from './components/DashboardView';
 import ChoreChart from './components/ChoreChart';
 import MealPlanner from './components/MealPlanner';
 import GroceryList from './components/GroceryList';
 import PhotoFrame from './components/PhotoFrame';
 import WeatherWidget from './components/WeatherWidget';
 import Settings from './components/Settings';
+import Auth from './components/Auth';
+import EventModal from './components/EventModal';
 
 // Mock Data
 import { MOCK_EVENTS, MOCK_CHORES, MOCK_MEALS, MOCK_GROCERIES, MOCK_WEATHER, MOCK_SETTINGS } from './lib/mockData';
 
 export default function Home() {
-  const [activeView, setActiveView] = useState('calendar');
+  const [user, setUser] = useState<any>(null);
+  const [activeView, setActiveView] = useState('dashboard');
   const [isPhotoMode, setIsPhotoMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Data State
   const [events, setEvents] = useState<any[]>(MOCK_EVENTS);
   
-  // Popups (Calendar specific, but lifted up for global access if needed)
+  // Popups
   const [showSharePopup, setShowSharePopup] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
+
+  // Check LocalStorage for user
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('skylight_user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    }
+  }, []);
 
   // Clock Tick
   useEffect(() => {
@@ -34,31 +48,91 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch real events if available (keeping original logic as optional enhancement)
+  const fetchEventsList = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`/api/events?userId=${user.id}`);
+      if (res.ok) {
+         const data = await res.json();
+         if (Array.isArray(data)) {
+           const formatted = data.map((e: any) => ({
+             id: e.id,
+             title: e.title || e.summary || 'No Title',
+             start: new Date(e.start),
+             end: new Date(e.end),
+             allDay: e.allDay,
+             guests: e.guests,
+           }));
+           setEvents(formatted);
+         }
+      }
+    } catch (err) { console.log("Using mock events", err); }
+  };
+
+  // Fetch real events if available
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await fetch('/api/events');
-        if (res.ok) {
-           const data = await res.json();
-           if (Array.isArray(data) && data.length > 0) {
-             const formatted = data.map((e: any) => ({
-               id: e.id,
-               title: e.summary || 'No Title',
-               start: new Date(e.start.dateTime || e.start.date),
-               end: new Date(e.end.dateTime || e.end.date),
-               allDay: !e.start.dateTime,
-             }));
-             setEvents(formatted);
-           }
-        }
-      } catch (err) { console.log("Using mock events"); }
-    };
-    fetchEvents();
-  }, []);
+    fetchEventsList();
+  }, [user]);
+
+  const handleLogin = (loggedInUser: any) => {
+    setUser(loggedInUser);
+    localStorage.setItem('skylight_user', JSON.stringify(loggedInUser));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('skylight_user');
+    setEvents(MOCK_EVENTS);
+  };
+
+  const handleSaveEvent = async (eventData: any) => {
+    if (!user) return;
+    try {
+      const method = eventData.id ? 'PUT' : 'POST';
+      const body = {
+        ...eventData,
+        ownerId: user.id,
+      };
+
+      const res = await fetch('/api/events', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        await fetchEventsList();
+        setEditingEvent(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+     if (!user) return;
+     try {
+       const res = await fetch(`/api/events?id=${eventId}&userId=${user.id}`, {
+         method: 'DELETE',
+       });
+       if (res.ok) {
+         await fetchEventsList();
+         setEditingEvent(null);
+       }
+     } catch (err) {
+       console.error(err);
+     }
+  };
 
   const renderContent = () => {
     switch (activeView) {
+      case 'dashboard':
+        return <DashboardView
+                  events={events}
+                  setEvents={setEvents}
+                  setShowSharePopup={setShowSharePopup}
+                  setEditingEvent={setEditingEvent}
+               />;
       case 'calendar':
         return <CalendarView
                   events={events}
@@ -73,8 +147,6 @@ export default function Home() {
       case 'grocery':
         return <GroceryList initialGroceries={MOCK_GROCERIES} />;
       case 'photos':
-        // If they click the sidebar tab, we can either show a gallery or just launch the frame mode.
-        // Let's launch frame mode for now.
         return (
            <div className="flex flex-col items-center justify-center h-full bg-slate-50 rounded-[2.5rem] border border-slate-200">
               <ImageIcon size={64} className="text-slate-300 mb-4" />
@@ -90,9 +162,13 @@ export default function Home() {
       case 'settings':
         return <Settings initialSettings={MOCK_SETTINGS} />;
       default:
-        return <CalendarView events={events} setEvents={setEvents} setShowSharePopup={setShowSharePopup} setEditingEvent={setEditingEvent} />;
+        return <DashboardView events={events} setEvents={setEvents} setShowSharePopup={setShowSharePopup} setEditingEvent={setEditingEvent} />;
     }
   };
+
+  if (!user) {
+    return <Auth onLogin={handleLogin} />;
+  }
 
   if (isPhotoMode) {
     return <PhotoFrame onExit={() => setIsPhotoMode(false)} />;
@@ -118,14 +194,26 @@ export default function Home() {
                  <p className="text-slate-400 font-bold text-lg uppercase tracking-wider mt-1">
                     {moment(currentTime).format('dddd, MMMM Do')}
                  </p>
+                 <div className="flex items-center gap-2 mt-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <p className="text-sm text-slate-500 font-bold">Hello, {user.username}</p>
+                 </div>
               </div>
-              <button 
-                 onClick={() => setIsPhotoMode(true)}
-                 className="p-4 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400 hover:text-blue-600 transition"
-                 title="Sleep / Photo Mode"
-              >
-                 <Moon size={24} />
-              </button>
+              <div className="flex gap-4 items-center">
+                 <button
+                   onClick={handleLogout}
+                   className="px-5 py-2 bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl font-bold transition text-xs uppercase tracking-wide"
+                 >
+                   Logout
+                 </button>
+                 <button
+                   onClick={() => setIsPhotoMode(true)}
+                   className="p-4 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400 hover:text-blue-600 transition"
+                   title="Sleep / Photo Mode"
+                 >
+                   <Moon size={24} />
+                 </button>
+              </div>
            </div>
 
            {/* Weather Widget (Top Right) */}
@@ -140,6 +228,13 @@ export default function Home() {
         </main>
       </div>
 
+      <EventModal
+         isOpen={!!editingEvent}
+         onClose={() => setEditingEvent(null)}
+         event={editingEvent}
+         onSave={handleSaveEvent}
+         onDelete={handleDeleteEvent}
+      />
     </div>
   );
 }

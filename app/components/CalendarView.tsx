@@ -20,6 +20,15 @@ export default function CalendarView({ events, setEvents, setShowSharePopup, set
   const handleNavigate = (newDate: Date) => setDate(newDate);
   const handleViewChange = (newView: View) => setView(newView);
 
+  const handleDrillDown = (date: Date) => {
+    setDate(date);
+    setView('day');
+  };
+
+  const handleSelectSlot = ({ start, end }: any) => {
+    setEditingEvent({ title: '', start, end });
+  };
+
   const CustomToolbar = (toolbar: any) => {
     const goToBack = () => {
       toolbar.onNavigate('PREV');
@@ -109,6 +118,9 @@ export default function CalendarView({ events, setEvents, setShowSharePopup, set
         onNavigate={handleNavigate}
         onView={handleViewChange}
         onSelectEvent={(e) => setEditingEvent(e)}
+        onDrillDown={handleDrillDown}
+        selectable
+        onSelectSlot={handleSelectSlot}
         components={{
           toolbar: CustomToolbar,
         }}
