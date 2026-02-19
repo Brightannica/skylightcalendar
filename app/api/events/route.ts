@@ -1,53 +1,76 @@
-import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
+import { getEvents, createEvent, deleteEvent, updateEvent } from '@/app/lib/db';
 
-function getCalendarClient() {
-  const privateKey = (process.env.GOOGLE_PRIVATE_KEY as string || '').replace(/\\n/g, '\n');
-  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL as string;
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get('userId');
 
-  if (!privateKey || !clientEmail) {
-    throw new Error("Missing Google Credentials in .env.local");
+  if (!userId) {
+    return NextResponse.json({ error: 'User ID required' }, { status: 400 });
   }
 
-  const jwtClient = new google.auth.JWT({
-    email: clientEmail,
-    key: privateKey,
-    scopes: ['https://www.googleapis.com/auth/calendar'],
-  });
-  
-  return google.calendar({ version: 'v3', auth: jwtClient });
-}
-
-export async function GET() {
   try {
-    const calendar = getCalendarClient();
-    const response = await calendar.events.list({
-      calendarId: process.env.GOOGLE_CALENDAR_ID,
-      timeMin: new Date().toISOString(),
-      maxResults: 50,
-      singleEvents: true,
-      orderBy: 'startTime',
-    });
-    return NextResponse.json(response.data.items || []);
+    const events = await getEvents(userId);
+    return NextResponse.json(events);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { title, start, end } = await request.json();
-    const calendar = getCalendarClient();
-    await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID,
-      requestBody: {
-        summary: title,
-        start: { dateTime: start },
-        end: { dateTime: end },
-      },
+    const body = await req.json();
+    // Validate body
+    if (!body.ownerId || !body.title || !body.start || !body.end) {
+       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const event = await createEvent({
+      title: body.title,
+      start: body.start,
+      end: body.end,
+      ownerId: body.ownerId,
+      allDay: body.allDay,
+      guests: body.guests || []
     });
-    return NextResponse.json({ success: true });
+
+    return NextResponse.json(event);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    if (!body.id || !body.ownerId) {
+       return NextResponse.json({ error: 'Missing ID or OwnerID' }, { status: 400 });
+    }
+
+    const event = await updateEvent(body);
+    return NextResponse.json(event);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+   const { searchParams } = new URL(req.url);
+   const id = searchParams.get('id');
+   const userId = searchParams.get('userId');
+
+   if (!id || !userId) {
+     return NextResponse.json({ error: 'Missing ID or UserID' }, { status: 400 });
+   }
+
+   try {
+     const success = await deleteEvent(id, userId);
+     if (success) {
+       return NextResponse.json({ success: true });
+     } else {
+       return NextResponse.json({ error: 'Event not found or unauthorized' }, { status: 404 });
+     }
+   } catch (error: any) {
+     return NextResponse.json({ error: error.message }, { status: 500 });
+   }
 }

@@ -1,0 +1,48 @@
+{
+  "users": [
+    {
+      "id": "a7375c57-2245-4144-a9db-273162426862",
+      "username": "user1853",
+      "password": "password123",
+      "color": "#849146"
+    },
+    {
+      "id": "b4be070f-4ea0-43bf-9398-5457736c7bbc",
+      "username": "user6597",
+      "password": "password123",
+      "color": "#c2933d"
+    },
+    {
+      "id": "1fe8212d-35f2-4a3f-96fc-7042999b84b2",
+      "username": "user8508",
+      "password": "password123",
+      "color": "#fdb0ad"
+    }
+  ],
+  "events": [
+    {
+      "title": "Test Event",
+      "start": "2026-02-18T23:53:00.000Z",
+      "end": "2026-02-18T23:53:00.000Z",
+      "ownerId": "a7375c57-2245-4144-a9db-273162426862",
+      "guests": [],
+      "id": "b822a026-12d1-4b1e-a2fb-5d2857d9e66e"
+    },
+    {
+      "title": "Test Event",
+      "start": "2026-02-18T23:55:00.000Z",
+      "end": "2026-02-18T23:55:00.000Z",
+      "ownerId": "b4be070f-4ea0-43bf-9398-5457736c7bbc",
+      "guests": [],
+      "id": "f8f8b5c6-a711-4350-a0ba-de969125f28e"
+    },
+    {
+      "title": "Test Event",
+      "start": "2026-02-18T23:55:00.000Z",
+      "end": "2026-02-18T23:55:00.000Z",
+      "ownerId": "1fe8212d-35f2-4a3f-96fc-7042999b84b2",
+      "guests": [],
+      "id": "2f286ba9-e3c5-4e50-8767-df16a8595aad"
+    }
+  ]
+}
